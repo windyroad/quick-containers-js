@@ -20,7 +20,7 @@ npm install @windyroad/quick-containers-js dockerode --save-dev
 
 ensurePulled will pull the specified image. To make it as fast as possible, it will check if the image exists locally and if it's not found, only then will it pull from Docker Hub.
 
-This means that if you are pulling an image with a `latest` tag or similar, then ensurePulled won't automatically pull the new images as they are released. 🤷‍♂️ It's a trade-off.
+This means that if you are pulling an image with a `latest` tag or similar, then ensurePulled won't automatically pull the new images as they are released. 🤷‍♂️ It's a speed trade-off. If I'm rerunning my tests on every save, then I don't want it checking for a new image to pull every single time.
 
 If you need new image, run `docker pull image:tag` from the command line.
 
