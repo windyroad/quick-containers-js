@@ -35,3 +35,7 @@ ensurePulled(docker, 'ubuntu:latest', console.log).then(...).catch(...)
 ```
 
 If you need to pass special options to the pull command, please let us know.
+
+## ensureStarted()
+
+Coming soon...
