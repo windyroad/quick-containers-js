@@ -12,7 +12,7 @@ function doPull (docker, image, log) {
   })
 }
 
-function ensurePulled (docker, image, log) {
+function ensurePulled (docker, image, log = console.log) {
   return docker.listImages().then(images => {
     const found = images.find(i => i.RepoTags && i.RepoTags.find(t => t === image))
     if (!found) {
@@ -24,4 +24,36 @@ function ensurePulled (docker, image, log) {
   })
 }
 
+function getContainer (docker, containerOptions) {
+  return docker.createContainer(containerOptions).catch(e => {
+    if (e.statusCode === 409) {
+      return docker.getContainer(containerOptions.name)
+    }
+    throw e
+  })
+}
+
+function ensureStarted (docker, containerOptions, wait, log = console.log) {
+  return getContainer(docker, containerOptions).then(container => {
+    return container.inspect().then(info => {
+      return { info, container }
+    })
+  }).then(data => {
+    if (!data.info.State.Running) {
+      log(`starting ${containerOptions.Image} as ${containerOptions.name}...`)
+      return data.container.start().then(() => wait()).then(() => {
+        log('...started!')
+        return data.container
+      })
+    } else {
+      log(`checking availability of ${containerOptions.Image} as ${containerOptions.name}...`)
+      return wait().then(() => {
+        log('...available!')
+        return data.container
+      })
+    }
+  })
+}
+
 exports.ensurePulled = ensurePulled
+exports.ensureStarted = ensureStarted

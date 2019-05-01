@@ -16,7 +16,7 @@ npm install @windyroad/quick-containers-js dockerode --save-dev
 
 # Usage
 
-## ensurePulled(docker, image, log)
+## ensurePulled(docker, image, log = console.log)
 
 ensurePulled will pull the specified image. To make it as fast as possible, it will check if the image exists locally and if it's not found, only then will it pull from Docker Hub.
 
@@ -36,6 +36,12 @@ qc.ensurePulled(docker, 'ubuntu:latest', console.log).then(...).catch(...)
 
 If you need to pass special options to the pull command, please let us know.
 
-## ensureStarted()
+## ensureStarted(docker, containerOptions, wait, log = console.log)
 
-Coming soon...
+ensureStarted will start try to start to container specified by `containerOptions`. It will then call `wait` and wait for it to resolve.
+
+It's important (but not mandatory) to give your container a `name`, so that `ensureStarted` doesn't start a new container for each test run.
+
+If the container is already running, `ensureStarted` will just call `wait`.
+
+`ensureStarted` will not stop the container when you are done. This is so, you can reuse the same container over and over again for each test run. This does mean you'll need to cleanup any state, but again, this is a speed trade-off. Cleaning up typically orders of magnitude faster than restarting.
