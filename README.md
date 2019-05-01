@@ -38,10 +38,40 @@ If you need to pass special options to the pull command, please let us know.
 
 ## ensureStarted(docker, containerOptions, wait, log = console.log)
 
-ensureStarted will start try to start to container specified by `containerOptions`. It will then call `wait` and wait for it to resolve.
+ensureStarted will start try to start to container specified by `containerOptions`. It will then call `wait` and wait for it to resolve. e.g.
+
+```js
+
+import qc from '@windyroad/quick-containers-js'
+import Docker from 'dockerode'
+import waitport from 'wait-port'
+...
+
+qc.ensureStarted(docker, {
+    Image: 'mysql:8.0.16',
+    Tty: false,
+    ExposedPorts: {
+      '3306/tcp': {}
+    },
+    HostConfig: {
+      PortBindings: { '3306/tcp': [{ HostPort: '3306' }] }
+    },
+    Env: [
+      'MYSQL_ROOT_PASSWORD=my-secret-pw'
+    ],
+    name: 'qc-mysql-test'
+  }, () => waitport({
+    port: 3306,
+    timeout: 60000
+  }))
+```
 
 It's important (but not mandatory) to give your container a `name`, so that `ensureStarted` doesn't start a new container for each test run.
 
 If the container is already running, `ensureStarted` will just call `wait`.
 
 `ensureStarted` will not stop the container when you are done. This is so, you can reuse the same container over and over again for each test run. This does mean you'll need to cleanup any state, but again, this is a speed trade-off. Cleaning up typically orders of magnitude faster than restarting.
+
+## ensureMySqlStarted()
+
+... coming soon
