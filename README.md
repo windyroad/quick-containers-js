@@ -11,7 +11,7 @@ Sometimes I need a database or similar for the code I'm testing to connect to. T
 # Installation
 
 ```
-npm install quick-containers-js dockerode --save-dev
+npm install @windyroad/quick-containers-js dockerode --save-dev
 ```
 
 # Usage
