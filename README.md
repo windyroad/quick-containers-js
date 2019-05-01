@@ -25,13 +25,13 @@ This means that if you are pulling an image with a `latest` tag or similar, then
 If you need new image, run `docker pull image:tag` from the command line.
 
 ```js
-import { ensurePulled } from '../lib/index'
+import qc from '@windyroad/quick-containers-js'
 import Docker from 'dockerode'
 
 ...
 
 const docker = new Docker();
-ensurePulled(docker, 'ubuntu:latest', console.log).then(...).catch(...)
+qc.ensurePulled(docker, 'ubuntu:latest', console.log).then(...).catch(...)
 ```
 
 If you need to pass special options to the pull command, please let us know.

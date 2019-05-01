@@ -12,7 +12,7 @@ function doPull (docker, image, log) {
   })
 }
 
-export function ensurePulled (docker, image, log) {
+function ensurePulled (docker, image, log) {
   return docker.listImages().then(images => {
     const found = images.find(i => i.RepoTags && i.RepoTags.find(t => t === image))
     if (!found) {
@@ -23,3 +23,5 @@ export function ensurePulled (docker, image, log) {
     return Promise.resolve()
   })
 }
+
+exports.ensurePulled = ensurePulled
