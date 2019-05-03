@@ -1,3 +1,5 @@
+import waitOnMysql from '@windyroad/wait-on-mysql'
+
 function doPull (docker, image, log) {
   return docker.pull(image).then(stream => {
     return new Promise(function (resolve, reject) {
@@ -25,7 +27,7 @@ function ensurePulled (docker, image, log = console.log) {
 }
 
 function getContainer (docker, containerOptions) {
-  return docker.createContainer(containerOptions).catch(e => {
+  return docker.createContainer(containerOptions).catch((e) => {
     if (e.statusCode === 409) {
       return docker.getContainer(containerOptions.name)
     }
@@ -41,19 +43,51 @@ function ensureStarted (docker, containerOptions, wait, log = console.log) {
   }).then(data => {
     if (!data.info.State.Running) {
       log(`starting ${containerOptions.Image} as ${containerOptions.name}...`)
-      return data.container.start().then(() => wait()).then(() => {
-        log('...started!')
-        return data.container
+      return data.container.start().then(() => {
+        return wait().then(result => {
+          log('...started!')
+          return result
+        })
       })
     } else {
       log(`checking availability of ${containerOptions.Image} as ${containerOptions.name}...`)
-      return wait().then(() => {
+      return wait().then(result => {
         log('...available!')
-        return data.container
+        return result
       })
     }
   })
 }
 
+function ensureMySqlStarted (docker, version = 'latest', port = '3306', timeout = 60000, password = 'my-secret-pw', env = []) {
+  const options = {
+    Image: `mysql:${version}`,
+    Tty: false,
+    ExposedPorts: {
+      '3306/tcp': {}
+    },
+    HostConfig: {
+      PortBindings: { '3306/tcp': [{ HostPort: `${port}` }] }
+    },
+    Env: env.concat([
+      `MYSQL_ROOT_PASSWORD=${password}`
+    ]),
+    name: `qc-mysql-${version}-${port}`
+  }
+  const wait = () => {
+    return waitOnMysql({
+      host: 'localhost',
+      port: port,
+      user: 'root',
+      password: password
+    },
+    {
+      timeout: timeout
+    })
+  }
+  return ensureStarted(docker, options, wait)
+}
+
 exports.ensurePulled = ensurePulled
 exports.ensureStarted = ensureStarted
+exports.ensureMySqlStarted = ensureMySqlStarted

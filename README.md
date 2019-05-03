@@ -2,7 +2,7 @@
 
 Utility methods for quickly starting up containers. Useful for when you're testing code that depends on databases, Kafka, elastic-search or similar.
 
-[`quick-containers-js`](https://github.com/windyroad/quick-containers-js) uses [`dockerode`](https://github.com/apocas/dockerode) and you need to install [`dockerode`](https://github.com/apocas/dockerode)] as a peer depdendency
+[`quick-containers-js`](https://github.com/windyroad/quick-containers-js) uses [`dockerode`](https://github.com/apocas/dockerode) and you need to install [`dockerode`](https://github.com/apocas/dockerode)] as a peer dependency
 
 # Why
 
@@ -72,6 +72,39 @@ If the container is already running, `ensureStarted` will just call `wait`.
 
 `ensureStarted` will not stop the container when you are done. This is so, you can reuse the same container over and over again for each test run. This does mean you'll need to cleanup any state, but again, this is a speed trade-off. Cleaning up typically orders of magnitude faster than restarting.
 
-## ensureMySqlStarted()
+## ensureMySqlStarted((docker, version = 'latest', port = '3306', timeout = 60000, password = 'my-secret-pw', env = [])
 
-... coming soon
+ensureMySqlStarted is a convenience function for starting MySQL. It returns a promise that resolves when a connection can be made to to container on the specified port.
+
+It is equivalent to
+
+```js
+qc.ensureStarted(
+  docker,
+  {
+    Image: `mysql:${version}`,
+    Tty: false,
+    ExposedPorts: {
+      '3306/tcp': {},
+    },
+    HostConfig: {
+      PortBindings: { '3306/tcp': [{ HostPort: `${port}` }] },
+    },
+    Env: env.concat([`MYSQL_ROOT_PASSWORD=${password}`]),
+    name: `qc-mysql-${version}-${port}`,
+  },
+  () => {
+    return waitOnMysql(
+      {
+        host: 'localhost',
+        port: port,
+        user: 'root',
+        password: password,
+      },
+      {
+        timeout: timeout,
+      },
+    );
+  },
+);
+```
