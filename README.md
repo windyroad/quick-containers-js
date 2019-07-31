@@ -74,37 +74,4 @@ If the container is already running, `ensureStarted` will just call `wait`.
 
 ## ensureMySqlStarted(docker, version = 'latest', port = '3306', timeout = 60000, password = 'my-secret-pw', env = [])
 
-ensureMySqlStarted is a convenience function for starting MySQL. It returns a promise that resolves when a connection can be made to to container on the specified port.
-
-It is equivalent to
-
-```js
-qc.ensureStarted(
-  docker,
-  {
-    Image: `mysql:${version}`,
-    Tty: false,
-    ExposedPorts: {
-      '3306/tcp': {},
-    },
-    HostConfig: {
-      PortBindings: { '3306/tcp': [{ HostPort: `${port}` }] },
-    },
-    Env: env.concat([`MYSQL_ROOT_PASSWORD=${password}`]),
-    name: `qc-mysql-${version}-${port}`,
-  },
-  () => {
-    return waitOnMysql(
-      {
-        host: 'localhost',
-        port: port,
-        user: 'root',
-        password: password,
-      },
-      {
-        timeout: timeout,
-      },
-    );
-  },
-);
-```
+Moved to [@windyroad/quick-mysql-js](https://github.com/windyroad/quick-mysql-js)
